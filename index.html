@@ -1235,62 +1235,71 @@
     </div>
 
     <!-- NEW: MODAL FORM KUPON MASTER & AFFILIATE -->
-    <div id="couponModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-md z-50 hidden flex justify-center items-center p-4">
-        <div class="glass rounded-3xl shadow-2xl w-full max-w-md overflow-hidden flex flex-col border border-white/20">
-            <div class="p-6 border-b border-white/20 dark:border-slate-700/50 flex justify-between items-center bg-white/40 dark:bg-slate-800/40">
-                <h3 class="text-xl font-black text-slate-800 dark:text-white" id="couponModalTitle">Tambah Kupon</h3>
-                <button onclick="closeCouponModal()" class="text-slate-500 hover:text-red-500 bg-white/50 dark:bg-slate-700/50 p-2 rounded-full transition-colors"><i class="ph ph-x text-xl"></i></button>
-            </div>
-            <div class="p-6">
-                <form id="couponForm" class="space-y-5">
-                    <input type="hidden" id="couponId">
-                    
-                    <div>
-                        <label class="block text-sm font-bold text-slate-700 dark:text-slate-300 mb-2">Kode Kupon Anda</label>
-                        <input type="text" id="couponCode" placeholder="Misal: DISKON50" class="w-full px-4 py-3 bg-white/50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700 rounded-xl outline-none focus:ring-2 focus:ring-brand dark:text-white uppercase font-mono font-bold" required>
-                        <p class="text-[10px] text-slate-500 mt-1">Nama ini yang akan dipakai pembeli saat checkout.</p>
-                    </div>
+<div id="couponModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-md z-50 hidden flex justify-center items-center p-4">
+    <div class="glass rounded-3xl shadow-2xl w-full max-w-md overflow-hidden flex flex-col border border-white/20">
+        <div class="p-6 border-b border-white/20 dark:border-slate-700/50 flex justify-between items-center bg-white/40 dark:bg-slate-800/40">
+            <h3 class="text-xl font-black text-slate-800 dark:text-white" id="couponModalTitle">Tambah Kupon</h3>
+            <button onclick="closeCouponModal()" class="text-slate-500 hover:text-red-500 bg-white/50 dark:bg-slate-700/50 p-2 rounded-full transition-colors"><i class="ph ph-x text-xl"></i></button>
+        </div>
+        <div class="p-6">
+            <form id="couponForm" class="space-y-5">
+                <input type="hidden" id="couponId">
+                
+                <div>
+                    <label class="block text-sm font-bold text-slate-700 dark:text-slate-300 mb-2">Kode Kupon Anda</label>
+                    <input type="text" id="couponCode" placeholder="Misal: DISKON50" class="w-full px-4 py-3 bg-white/50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700 rounded-xl outline-none focus:ring-2 focus:ring-brand dark:text-white uppercase font-mono font-bold" required>
+                    <p class="text-[10px] text-slate-500 mt-1">Nama ini yang akan dipakai pembeli saat checkout.</p>
+                </div>
 
-                    <!-- KHUSUS AFFILIATE / USER (Pilih Kupon Master) -->
-                    <div id="affiliateCouponConfig" class="hidden">
-                        <label class="block text-sm font-bold text-slate-700 dark:text-slate-300 mb-2">Pilih Master Kupon <span class="text-xs text-brand">(Acuan Diskon)</span></label>
-                        <select id="masterCouponSelect" class="w-full px-4 py-3 bg-white/50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700 rounded-xl outline-none focus:ring-2 focus:ring-brand dark:text-white font-medium">
-                            <!-- Options di-generate lewat JS app.js -->
-                        </select>
-                        <p class="text-[10px] text-slate-500 mt-1">Nilai diskon akan mengikuti kupon buatan Admin yang Anda pilih di atas.</p>
-                    </div>
+                <!-- KHUSUS AFFILIATE / USER (Pilih Kupon Master) -->
+                <div id="affiliateCouponConfig" class="hidden">
+                    <label class="block text-sm font-bold text-slate-700 dark:text-slate-300 mb-2">Pilih Master Kupon <span class="text-xs text-brand">(Acuan Diskon)</span></label>
+                    <select id="masterCouponSelect" class="w-full px-4 py-3 bg-white/50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700 rounded-xl outline-none focus:ring-2 focus:ring-brand dark:text-white font-medium">
+                        <!-- Options di-generate lewat JS app.js -->
+                    </select>
+                    <p class="text-[10px] text-slate-500 mt-1">Nilai diskon akan mengikuti kupon buatan Admin yang Anda pilih di atas.</p>
+                </div>
 
-                    <!-- KHUSUS ADMIN (Atur Nilai Bebas) -->
-                    <div id="adminCouponConfig" class="hidden">
-                        <div class="grid grid-cols-2 gap-5 mb-5">
-                            <div>
-                                <label class="block text-sm font-bold text-slate-700 dark:text-slate-300 mb-2">Tipe Diskon</label>
-                                <select id="couponType" class="w-full px-4 py-3 bg-white/50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700 rounded-xl outline-none focus:ring-2 focus:ring-brand dark:text-white font-medium">
-                                    <option value="percent">Persentase (%)</option>
-                                    <option value="fixed">Nominal (Rp)</option>
-                                </select>
-                            </div>
-                            <div>
-                                <label class="block text-sm font-bold text-slate-700 dark:text-slate-300 mb-2">Nilai Potongan</label>
-                                <input type="number" id="couponValue" placeholder="Misal: 50" class="w-full px-4 py-3 bg-white/50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700 rounded-xl outline-none focus:ring-2 focus:ring-brand dark:text-white font-medium">
-                            </div>
-                        </div>
+                <!-- KHUSUS ADMIN (Atur Nilai Bebas) -->
+                <div id="adminCouponConfig" class="hidden">
+                    <div class="grid grid-cols-2 gap-5 mb-5">
                         <div>
-                            <label class="block text-sm font-bold text-slate-700 dark:text-slate-300 mb-2">Berlaku Untuk Produk</label>
-                            <select id="couponProductId" class="w-full px-4 py-3 bg-white/50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700 rounded-xl outline-none focus:ring-2 focus:ring-brand dark:text-white font-medium">
-                                <option value="all">Semua Produk</option>
+                            <label class="block text-sm font-bold text-slate-700 dark:text-slate-300 mb-2">Tipe Diskon</label>
+                            <select id="couponType" class="w-full px-4 py-3 bg-white/50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700 rounded-xl outline-none focus:ring-2 focus:ring-brand dark:text-white font-medium">
+                                <option value="percent">Persentase (%)</option>
+                                <option value="fixed">Nominal (Rp)</option>
                             </select>
                         </div>
+                        <div>
+                            <label class="block text-sm font-bold text-slate-700 dark:text-slate-300 mb-2">Nilai Potongan</label>
+                            <input type="number" id="couponValue" placeholder="Misal: 50" class="w-full px-4 py-3 bg-white/50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700 rounded-xl outline-none focus:ring-2 focus:ring-brand dark:text-white font-medium">
+                        </div>
                     </div>
-                    
-                </form>
-            </div>
-            <div class="p-6 border-t border-white/20 dark:border-slate-700/50 bg-white/40 dark:bg-slate-800/40 flex justify-end gap-3">
-                <button onclick="closeCouponModal()" class="px-6 py-3 text-slate-600 dark:text-slate-300 font-bold hover:bg-white/50 dark:hover:bg-slate-700/50 rounded-xl transition-colors">Batal</button>
-                <button onclick="saveCoupon()" class="bg-gradient-to-r from-brand to-purple-600 hover:from-brandHover hover:to-purple-700 text-white px-8 py-3 rounded-xl font-bold transition-all shadow-lg shadow-brand/30">Simpan Kupon</button>
-            </div>
+                    <div class="mb-5">
+                        <label class="block text-sm font-bold text-slate-700 dark:text-slate-300 mb-2">Berlaku Untuk Produk</label>
+                        <select id="couponProductId" class="w-full px-4 py-3 bg-white/50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700 rounded-xl outline-none focus:ring-2 focus:ring-brand dark:text-white font-medium">
+                            <option value="all">Semua Produk</option>
+                        </select>
+                    </div>
+
+                    <!-- SUNTIKAN: Checkbox Kupon Internal -->
+                    <div class="flex items-center gap-3 p-4 bg-amber-50 dark:bg-amber-900/20 border border-amber-100 dark:border-amber-800 rounded-2xl">
+                        <input type="checkbox" id="couponIsInternal" class="w-4 h-4 accent-amber-600 rounded cursor-pointer">
+                        <div class="flex flex-col">
+                            <label for="couponIsInternal" class="text-xs font-bold text-amber-700 dark:text-amber-400 cursor-pointer">Kupon Internal (Admin Only)</label>
+                            <span class="text-[9px] text-amber-600/70 dark:text-amber-500/50 italic">Kupon ini tidak akan muncul di daftar pilihan Agency/Reseller.</span>
+                        </div>
+                    </div>
+                </div>
+                
+            </form>
+        </div>
+        <div class="p-6 border-t border-white/20 dark:border-slate-700/50 bg-white/40 dark:bg-slate-800/40 flex justify-end gap-3">
+            <button onclick="closeCouponModal()" class="px-6 py-3 text-slate-600 dark:text-slate-300 font-bold hover:bg-white/50 dark:hover:bg-slate-700/50 rounded-xl transition-colors">Batal</button>
+            <button onclick="saveCoupon()" class="bg-gradient-to-r from-brand to-purple-600 hover:from-brandHover hover:to-purple-700 text-white px-8 py-3 rounded-xl font-bold transition-all shadow-lg shadow-brand/30">Simpan Kupon</button>
         </div>
     </div>
+</div>
 
     <!-- Template Form Modal -->
     <div id="templateModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-md z-50 hidden flex justify-center items-center p-4">
@@ -3234,16 +3243,21 @@
                 data.applicableProductId = document.getElementById('couponProductId')?.value || 'all'; 
                 data.masterCouponId = ''; 
                 data.createdBy = 'admin';
+                // SUNTIKAN: Ambil status internal
+                data.isInternal = document.getElementById('couponIsInternal')?.checked ? "TRUE" : "FALSE";
+
                 if(!data.value) return window.showToast("Nilai potongan harus diisi", "error");
             } else {
                 const masterId = document.getElementById('masterCouponSelect')?.value || '';
                 if (!masterId) return window.showToast("Pilih Master Kupon terlebih dahulu", "error");
                 const masterCoupon = window.appState.coupons.find(c => String(c.id) === String(masterId));
                 if (!masterCoupon) return window.showToast("Master Kupon tidak valid", "error");
+                
                 data.type = masterCoupon.type; 
                 data.value = masterCoupon.value; 
                 data.applicableProductId = masterCoupon.applicableProductId; 
                 data.masterCouponId = masterId;
+                data.isInternal = "FALSE"; // User biasa gak bisa bikin kupon internal
             }
 
             await apiCall('saveCoupon', data); 
@@ -3266,19 +3280,25 @@
             const adminConfig = document.getElementById('adminCouponConfig');
             const affConfig = document.getElementById('affiliateCouponConfig');
             const masterSelect = document.getElementById('masterCouponSelect');
+            const internalCheckbox = document.getElementById('couponIsInternal');
 
             if (isAdmin || coupon.createdBy === 'admin' || !coupon.createdBy) {
                 if(adminConfig) adminConfig.classList.remove('hidden');
                 if(affConfig) affConfig.classList.add('hidden');
                 if(document.getElementById('couponType')) document.getElementById('couponType').value = coupon.type;
                 if(document.getElementById('couponValue')) document.getElementById('couponValue').value = coupon.value;
+                
+                // SUNTIKAN: Set status checkbox internal
+                if(internalCheckbox) internalCheckbox.checked = (coupon.isInternal === "TRUE" || coupon.isInternal === true);
+                
                 window.populateCouponProductSelect(coupon.applicableProductId || 'all');
             } else {
                 if(adminConfig) adminConfig.classList.add('hidden');
                 if(affConfig) affConfig.classList.remove('hidden');
                 if(masterSelect) {
                     masterSelect.innerHTML = '';
-                    window.appState.coupons.filter(c => c.createdBy === 'admin' || !c.createdBy).forEach(mc => { 
+                    // SUNTIKAN: Filter agar kupon internal TIDAK MUNCUL di pilihan Agency
+                    window.appState.coupons.filter(c => (c.createdBy === 'admin' || !c.createdBy) && (c.isInternal !== "TRUE" && c.isInternal !== true)).forEach(mc => { 
                         const valLabel = mc.type === 'percent' ? `${mc.value}%` : window.formatRp(mc.value); 
                         const selected = String(mc.id) === String(coupon.masterCouponId) ? 'selected' : ''; 
                         masterSelect.innerHTML += `<option value="${mc.id}" ${selected}>${mc.code} (Diskon: ${valLabel})</option>`; 
@@ -3289,7 +3309,6 @@
             if(cModal) cModal.classList.remove('hidden');
         } catch (e) { console.error("Error editCoupon: ", e); }
     };
-
     window.deleteCoupon = async (id) => { 
         if(confirm("Hapus kupon ini?")) { 
             try { 
