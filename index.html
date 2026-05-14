@@ -2796,52 +2796,90 @@
         });
     };
 
-    window.saveUser = async () => {
-        try {
-            const idEl = document.getElementById('userId');
-            const id = idEl ? idEl.value : '';
-            
-            const name = document.getElementById('userName')?.value || '';
-            const email = document.getElementById('userEmail')?.value || '';
-            const rawWa = document.getElementById('userWa')?.value || '';
-            const wa = window.formatPhoneNumber(rawWa);
-            const role = document.getElementById('userRole')?.value || 'user';
-            const rawPass = document.getElementById('userPassword')?.value || '';
+    // --- FUNGSI TUTUP MODAL (INI YANG BIKIN TOMBOL BATAL & X JALAN) ---
+window.closeUserModal = () => {
+    const modal = document.getElementById('userModal');
+    const form = document.getElementById('userForm');
+    
+    if (modal) {
+        modal.classList.add('hidden'); // Sembunyiin modal tanpa refresh
+    }
+    
+    if (form) {
+        form.reset(); // Bersihin inputan biar gak nyangkut
+    }
 
-            // AMBIL DATA CHECKLIST
-            const selectedProducts = [];
-            document.querySelectorAll('.product-access-checkbox:checked').forEach(cb => {
-                selectedProducts.push(cb.value);
-            });
-            const licenseData = selectedProducts.join(', ');
+    // Balikin title dan ID ke default
+    if (document.getElementById('userModalTitle')) document.getElementById('userModalTitle').innerText = 'Tambah User Baru';
+    if (document.getElementById('userId')) document.getElementById('userId').value = '';
+    
+    console.log("Modal User ditutup. Aman bray!");
+};
 
-            if(!name || !email) {
-                window.showToast("Nama dan Email wajib diisi", "error");
-                return;
-            }
+// --- FUNGSI SIMPAN USER (DENGAN PROTEKSI LOCK BUTTON) ---
+window.saveUser = async () => {
+    // LOCK BUTTON: Ambil tombol simpan, matiin biar gak spam klik
+    const btnSave = document.querySelector('button[onclick="saveUser()"]');
+    if (btnSave && btnSave.disabled) return;
 
-            let payload = { 
-                id, name, email, wa, role, 
-                license: licenseData 
-            };
+    try {
+        const idEl = document.getElementById('userId');
+        const id = idEl ? idEl.value : '';
+        
+        const name = document.getElementById('userName')?.value || '';
+        const email = document.getElementById('userEmail')?.value || '';
+        const rawWa = document.getElementById('userWa')?.value || '';
+        const wa = window.formatPhoneNumber ? window.formatPhoneNumber(rawWa) : rawWa;
+        const role = document.getElementById('userRole')?.value || 'user';
+        const rawPass = document.getElementById('userPassword')?.value || '';
 
-            if (id) { 
-                if (rawPass) payload.password = await window.hashPassword(rawPass);
-            } else { 
-                if (!rawPass) { window.showToast("Password wajib diisi!", "error"); return; }
-                payload.password = await window.hashPassword(rawPass);
-                payload.affiliateCode = name.replace(/\s+/g, '').toUpperCase().substring(0, 5) + Math.floor(Math.random()*1000);
-            }
+        // AMBIL DATA CHECKLIST (LICENSE)
+        const selectedProducts = [];
+        document.querySelectorAll('.product-access-checkbox:checked').forEach(cb => {
+            selectedProducts.push(cb.value);
+        });
+        const licenseData = selectedProducts.join(', ');
 
-            await apiCall('saveUser', payload);
+        if(!name || !email) {
+            window.showToast("Nama dan Email wajib diisi", "error");
+            return;
+        }
+
+        // Aktifkan Loading State
+        if(btnSave) {
+            btnSave.disabled = true;
+            btnSave.innerHTML = '<i class="ph ph-circle-notch animate-spin"></i> Menyimpan...';
+        }
+
+        let payload = { id, name, email, wa, role, license: licenseData };
+
+        if (id) { 
+            if (rawPass) payload.password = await window.hashPassword(rawPass);
+        } else { 
+            if (!rawPass) throw new Error("Password wajib diisi!");
+            payload.password = await window.hashPassword(rawPass);
+            payload.affiliateCode = name.replace(/\s+/g, '').toUpperCase().substring(0, 5) + Math.floor(Math.random()*1000);
+        }
+
+        const res = await apiCall('saveUser', payload);
+        
+        if(res && res.success) {
             window.showToast("Data user & Akses berhasil disimpan!");
             await window.loadAllData();
-            window.closeUserModal();
-        } catch (e) {
-            window.showToast(e.message, "error");
+            window.closeUserModal(); // Panggil fungsi tutup modal yang baru dibuat
+        } else {
+            throw new Error(res.message || "Gagal menyimpan.");
         }
-    };
-
+    } catch (e) {
+        window.showToast(e.message, "error");
+    } finally {
+        // Balikin tombol ke semula
+        if(btnSave) {
+            btnSave.disabled = false;
+            btnSave.innerText = "Simpan User";
+        }
+    }
+};
     // ==========================================
     // AFFILIATE SYSTEM LOGIC
     // ==========================================
