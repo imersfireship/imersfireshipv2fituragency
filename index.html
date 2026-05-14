@@ -3164,108 +3164,114 @@ window.saveUser = async () => {
     };
 
     // ==========================================
-    // COUPONS CRUD LOGIC
-    // ==========================================
-    
-    window.renderCouponsTable = () => {
-        const tbody = document.getElementById('couponsTableBody');
-        if(!tbody) return;
-        tbody.innerHTML = '';
+// COUPONS CRUD LOGIC (FULL REPAIR BLOCK)
+// ==========================================
 
-        const isUserAdmin = window.appState.user.role === 'admin';
-        const filteredCoupons = isUserAdmin ? window.appState.coupons : window.appState.coupons.filter(c => String(c.createdBy) === String(window.appState.user.id));
+window.renderCouponsTable = () => {
+    const tbody = document.getElementById('couponsTableBody');
+    if(!tbody) return;
+    tbody.innerHTML = '';
 
-        if(filteredCoupons.length === 0) {
-            tbody.innerHTML = `<tr><td colspan="5" class="px-6 py-10 text-center text-slate-500 font-bold">Belum ada kupon. Buat kupon pertama Anda.</td></tr>`;
-            return;
+    const isUserAdmin = window.appState.user.role === 'admin';
+    const filteredCoupons = isUserAdmin ? window.appState.coupons : window.appState.coupons.filter(c => String(c.createdBy) === String(window.appState.user.id));
+
+    if(filteredCoupons.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="5" class="px-6 py-10 text-center text-slate-500 font-bold">Belum ada kupon. Buat kupon pertama Anda.</td></tr>`;
+        return;
+    }
+
+    filteredCoupons.forEach(c => {
+        const typeLabel = c.type === 'percent' ? 'Persentase (%)' : 'Nominal (Rp)';
+        const valueLabel = c.type === 'percent' ? `${c.value}%` : window.formatRp(c.value);
+        
+        let applicableLabel = '<span class="bg-blue-500/20 text-blue-700 dark:text-blue-400 px-3 py-1 rounded-lg text-xs font-black uppercase">Semua Produk</span>';
+        if (c.applicableProductId && c.applicableProductId !== 'all') {
+            const prod = window.appState.products.find(p => String(p.id) === String(c.applicableProductId));
+            applicableLabel = prod ? `<span class="bg-slate-500/20 text-slate-700 dark:text-slate-300 px-3 py-1 rounded-lg text-xs font-bold border border-white/20 dark:border-slate-700" title="${prod.title}">${prod.title.substring(0, 20)}${prod.title.length > 20 ? '...' : ''}</span>` : '<span class="text-red-500 text-xs font-black uppercase">Produk Dihapus</span>';
         }
 
-        filteredCoupons.forEach(c => {
-            const typeLabel = c.type === 'percent' ? 'Persentase (%)' : 'Nominal (Rp)';
-            const valueLabel = c.type === 'percent' ? `${c.value}%` : window.formatRp(c.value);
+        let isMaster = c.createdBy === 'admin' || !c.createdBy;
+        let internalBadge = (c.isInternal === true || c.isInternal === "TRUE") ? `<span class="bg-amber-500/20 text-amber-700 dark:text-amber-400 px-2 py-0.5 rounded text-[10px] font-bold uppercase ml-1">Private</span>` : '';
+        let masterBadge = isMaster ? `<span class="bg-purple-500/20 text-purple-700 dark:text-purple-400 px-2 py-0.5 rounded text-[10px] font-bold uppercase ml-2 align-middle">Master</span>` : `<span class="bg-slate-500/20 text-slate-700 dark:text-slate-400 px-2 py-0.5 rounded text-[10px] font-bold uppercase ml-2 align-middle">Affiliate</span>`;
+
+        tbody.innerHTML += `
+            <tr class="hover:bg-white/30 dark:hover:bg-slate-800/30 transition-colors border-b border-white/10 dark:border-slate-700/30">
+                <td class="px-6 py-4 font-mono font-black text-brand dark:text-brandHover text-base">${c.code} ${masterBadge}${internalBadge}</td>
+                <td class="px-6 py-4 font-medium text-slate-700 dark:text-slate-300">${typeLabel}</td>
+                <td class="px-6 py-4 font-black text-slate-800 dark:text-white">${valueLabel}</td>
+                <td class="px-6 py-4">${applicableLabel}</td>
+                <td class="px-6 py-4 text-right">
+                    <div class="flex items-center justify-end gap-2">
+                        <button onclick="window.editCoupon('${c.id}')" class="p-2 text-blue-600 dark:text-blue-400 hover:bg-blue-500/20 rounded-xl transition-colors"><i class="ph ph-pencil-simple text-xl"></i></button>
+                        <button onclick="window.deleteCoupon('${c.id}')" class="p-2 text-red-600 dark:text-red-400 hover:bg-red-500/20 rounded-xl transition-colors"><i class="ph ph-trash text-xl"></i></button>
+                    </div>
+                </td>
+            </tr>
+        `;
+    });
+};
+
+window.populateCouponProductSelect = (selectedId = 'all') => {
+    const select = document.getElementById('couponProductId');
+    if(!select) return;
+    select.innerHTML = '<option value="all">Semua Produk</option>';
+    window.appState.products.forEach(p => {
+        const option = document.createElement('option'); 
+        option.value = p.id; 
+        option.innerText = p.title;
+        if (String(p.id) === String(selectedId)) option.selected = true;
+        select.appendChild(option);
+    });
+};
+
+window.openCouponModal = () => {
+    try {
+        const f = document.getElementById('couponForm');
+        if(f) f.reset();
+        if(document.getElementById('couponId')) document.getElementById('couponId').value = '';
+        if(document.getElementById('couponModalTitle')) document.getElementById('couponModalTitle').innerText = 'Tambah Kupon';
+        
+        const isAdmin = window.appState.user.role === 'admin';
+        const adminConfig = document.getElementById('adminCouponConfig');
+        const affConfig = document.getElementById('affiliateCouponConfig');
+        const masterSelect = document.getElementById('masterCouponSelect');
+
+        if (isAdmin) {
+            if(adminConfig) adminConfig.classList.remove('hidden');
+            if(affConfig) affConfig.classList.add('hidden');
+            window.populateCouponProductSelect('all');
+        } else {
+            if(adminConfig) adminConfig.classList.add('hidden');
+            if(affConfig) affConfig.classList.remove('hidden');
             
-            let applicableLabel = '<span class="bg-blue-500/20 text-blue-700 dark:text-blue-400 px-3 py-1 rounded-lg text-xs font-black uppercase">Semua Produk</span>';
-            if (c.applicableProductId && c.applicableProductId !== 'all') {
-                const prod = window.appState.products.find(p => String(p.id) === String(c.applicableProductId));
-                applicableLabel = prod ? `<span class="bg-slate-500/20 text-slate-700 dark:text-slate-300 px-3 py-1 rounded-lg text-xs font-bold border border-white/20 dark:border-slate-700" title="${prod.title}">${prod.title.substring(0, 20)}${prod.title.length > 20 ? '...' : ''}</span>` : '<span class="text-red-500 text-xs font-black uppercase">Produk Dihapus</span>';
-            }
+            if(masterSelect) {
+                masterSelect.innerHTML = '';
+                // FILTER: Jangan tampilkan kupon internal admin ke Affiliate
+                const masterCoupons = window.appState.coupons.filter(c => 
+                    (c.createdBy === 'admin' || !c.createdBy) && 
+                    (c.isInternal !== true && c.isInternal !== "TRUE")
+                );
 
-            let isMaster = c.createdBy === 'admin' || !c.createdBy;
-            let masterBadge = isMaster ? `<span class="bg-purple-500/20 text-purple-700 dark:text-purple-400 px-2 py-0.5 rounded text-[10px] font-bold uppercase ml-2 align-middle">Master</span>` : `<span class="bg-slate-500/20 text-slate-700 dark:text-slate-400 px-2 py-0.5 rounded text-[10px] font-bold uppercase ml-2 align-middle">Affiliate</span>`;
-
-            tbody.innerHTML += `
-                <tr class="hover:bg-white/30 dark:hover:bg-slate-800/30 transition-colors border-b border-white/10 dark:border-slate-700/30">
-                    <td class="px-6 py-4 font-mono font-black text-brand dark:text-brandHover text-base">${c.code} ${masterBadge}</td>
-                    <td class="px-6 py-4 font-medium text-slate-700 dark:text-slate-300">${typeLabel}</td>
-                    <td class="px-6 py-4 font-black text-slate-800 dark:text-white">${valueLabel}</td>
-                    <td class="px-6 py-4">${applicableLabel}</td>
-                    <td class="px-6 py-4 text-right">
-                        <div class="flex items-center justify-end gap-2">
-                            <button onclick="window.editCoupon('${c.id}')" class="p-2 text-blue-600 dark:text-blue-400 hover:bg-blue-500/20 rounded-xl transition-colors"><i class="ph ph-pencil-simple text-xl"></i></button>
-                            <button onclick="window.deleteCoupon('${c.id}')" class="p-2 text-red-600 dark:text-red-400 hover:bg-red-500/20 rounded-xl transition-colors"><i class="ph ph-trash text-xl"></i></button>
-                        </div>
-                    </td>
-                </tr>
-            `;
-        });
-    };
-
-    window.populateCouponProductSelect = (selectedId = 'all') => {
-        const select = document.getElementById('couponProductId');
-        if(!select) return;
-        select.innerHTML = '<option value="all">Semua Produk</option>';
-        window.appState.products.forEach(p => {
-            const option = document.createElement('option'); 
-            option.value = p.id; 
-            option.innerText = p.title;
-            if (String(p.id) === String(selectedId)) option.selected = true;
-            select.appendChild(option);
-        });
-    };
-
-    window.openCouponModal = () => {
-        try {
-            const f = document.getElementById('couponForm');
-            if(f) f.reset();
-            if(document.getElementById('couponId')) document.getElementById('couponId').value = '';
-            if(document.getElementById('couponModalTitle')) document.getElementById('couponModalTitle').innerText = 'Tambah Kupon';
-            
-            const isAdmin = window.appState.user.role === 'admin';
-            const adminConfig = document.getElementById('adminCouponConfig');
-            const affConfig = document.getElementById('affiliateCouponConfig');
-            const masterSelect = document.getElementById('masterCouponSelect');
-
-            if (isAdmin) {
-                if(adminConfig) adminConfig.classList.remove('hidden');
-                if(affConfig) affConfig.classList.add('hidden');
-                window.populateCouponProductSelect('all');
-            } else {
-                if(adminConfig) adminConfig.classList.add('hidden');
-                if(affConfig) affConfig.classList.remove('hidden');
-                
-                if(masterSelect) {
-                    masterSelect.innerHTML = '';
-                    const masterCoupons = window.appState.coupons.filter(c => c.createdBy === 'admin' || !c.createdBy);
-                    if(masterCoupons.length === 0) { 
-                        masterSelect.innerHTML = '<option value="">Belum ada Master Kupon</option>'; 
-                    } else {
-                        masterSelect.innerHTML = '<option value="">-- Pilih Kupon Diskon --</option>';
-                        masterCoupons.forEach(mc => { 
-                            const valLabel = mc.type === 'percent' ? `${mc.value}%` : window.formatRp(mc.value); 
-                            masterSelect.innerHTML += `<option value="${mc.id}">${mc.code} (Diskon: ${valLabel})</option>`; 
-                        });
-                    }
+                if(masterCoupons.length === 0) { 
+                    masterSelect.innerHTML = '<option value="">Belum ada Master Kupon</option>'; 
+                } else {
+                    masterSelect.innerHTML = '<option value="">-- Pilih Kupon Diskon --</option>';
+                    masterCoupons.forEach(mc => { 
+                        const valLabel = mc.type === 'percent' ? `${mc.value}%` : window.formatRp(mc.value); 
+                        masterSelect.innerHTML += `<option value="${mc.id}">${mc.code} (Diskon: ${valLabel})</option>`; 
+                    });
                 }
             }
-            const cModal = document.getElementById('couponModal');
-            if(cModal) cModal.classList.remove('hidden');
-        } catch (e) { console.error("Error openCouponModal: ", e); }
-    };
+        }
+        const cModal = document.getElementById('couponModal');
+        if(cModal) cModal.classList.remove('hidden');
+    } catch (e) { console.error("Error openCouponModal: ", e); }
+};
 
-    window.closeCouponModal = () => { 
-        const cModal = document.getElementById('couponModal'); 
-        if(cModal) cModal.classList.add('hidden'); 
-    };
+window.closeCouponModal = () => { 
+    const cModal = document.getElementById('couponModal'); 
+    if(cModal) cModal.classList.add('hidden'); 
+};
 
     // --- FUNGSI SIMPAN KUPON (DENGAN PROTEKSI ANTI-DUPLIKAT) ---
 window.saveCoupon = async () => {
