@@ -3229,7 +3229,12 @@
         if(cModal) cModal.classList.add('hidden'); 
     };
 
-    window.saveCoupon = async () => {
+    // --- FUNGSI SIMPAN KUPON (DENGAN PROTEKSI ANTI-DUPLIKAT) ---
+window.saveCoupon = async () => {
+    // 1. LOCK BUTTON: Ambil referensi tombol simpan
+    const btnSave = document.querySelector('button[onclick="saveCoupon()"]');
+    if (btnSave && btnSave.disabled) return; // Abaikan jika sedang proses
+
     try {
         let idEl = document.getElementById('couponId');
         let id = idEl ? idEl.value : '';
@@ -3237,6 +3242,12 @@
         const isAdmin = window.appState.user.role === 'admin';
         
         if(!code) return window.showToast("Kode Kupon harus diisi", "error");
+
+        // Set tombol ke state loading biar gak bisa di-klik dua kali
+        if(btnSave) {
+            btnSave.disabled = true;
+            btnSave.innerHTML = '<i class="ph ph-circle-notch animate-spin"></i> Menyimpan...';
+        }
 
         let data = { id: id, code: code, createdBy: window.appState.user.id, createdAt: Date.now() };
 
@@ -3247,31 +3258,45 @@
             data.masterCouponId = ''; 
             data.createdBy = 'admin';
             
-            // AMBIL STATUS INTERNAL (Checklist Admin)
+            // Ambil status checklist kupon internal
             const internalEl = document.getElementById('couponIsInternal');
             data.isInternal = internalEl ? internalEl.checked : false;
 
-            if(!data.value) return window.showToast("Nilai potongan harus diisi", "error");
+            if(!data.value) throw new Error("Nilai potongan harus diisi");
         } else {
             const masterId = document.getElementById('masterCouponSelect')?.value || '';
-            if (!masterId) return window.showToast("Pilih Master Kupon terlebih dahulu", "error");
+            if (!masterId) throw new Error("Pilih Master Kupon terlebih dahulu");
             const masterCoupon = window.appState.coupons.find(c => String(c.id) === String(masterId));
-            if (!masterCoupon) return window.showToast("Master Kupon tidak valid", "error");
             
             data.type = masterCoupon.type; 
             data.value = masterCoupon.value; 
             data.applicableProductId = masterCoupon.applicableProductId; 
             data.masterCouponId = masterId;
-            data.isInternal = false; // Affiliate/Agency gak bisa bikin kupon internal
+            data.isInternal = false; 
         }
 
-        await apiCall('saveCoupon', data); 
-        window.showToast("Kupon Disimpan!"); 
-        await window.loadAllData(); 
-        window.closeCouponModal();
-    } catch (e) { window.showToast("Error: " + e.message, "error"); }
+        const res = await apiCall('saveCoupon', data); 
+        
+        if (res && res.success) {
+            window.showToast("Kupon Disimpan!"); 
+            await window.loadAllData(); // Refresh data biar tabel sinkron
+            window.closeCouponModal();
+        } else {
+            throw new Error(res.message || "Gagal simpan ke database");
+        }
+
+    } catch (e) { 
+        window.showToast("Error: " + e.message, "error"); 
+    } finally {
+        // 2. UNLOCK BUTTON: Balikin tombol ke state normal
+        if(btnSave) {
+            btnSave.disabled = false;
+            btnSave.innerText = "Simpan Kupon";
+        }
+    }
 };
 
+// --- FUNGSI EDIT KUPON (DENGAN FILTER INTERNAL) ---
 window.editCoupon = (id) => {
     try {
         const coupon = window.appState.coupons.find(c => String(c.id) === String(id));
@@ -3293,7 +3318,7 @@ window.editCoupon = (id) => {
             if(document.getElementById('couponType')) document.getElementById('couponType').value = coupon.type;
             if(document.getElementById('couponValue')) document.getElementById('couponValue').value = coupon.value;
             
-            // SET STATUS INTERNAL SAAT EDIT
+            // Set status internal sesuai data dari Sheets
             if(internalEl) internalEl.checked = (coupon.isInternal === true || coupon.isInternal === "TRUE");
             
             window.populateCouponProductSelect(coupon.applicableProductId || 'all');
@@ -3302,7 +3327,7 @@ window.editCoupon = (id) => {
             if(affConfig) affConfig.classList.remove('hidden');
             if(masterSelect) {
                 masterSelect.innerHTML = '';
-                // FILTER: Jangan tampilkan kupon internal ke Agency/Affiliate
+                // FILTER: Jangan tampilkan kupon internal milik admin ke Agency/Reseller
                 window.appState.coupons
                     .filter(c => (c.createdBy === 'admin' || !c.createdBy) && (c.isInternal !== true && c.isInternal !== "TRUE"))
                     .forEach(mc => { 
@@ -3317,7 +3342,7 @@ window.editCoupon = (id) => {
     } catch (e) { console.error("Error editCoupon: ", e); }
 };
 
-// --- DELETE COUPON (BALIK LAGI BRAY) ---
+// --- FUNGSI DELETE KUPON ---
 window.deleteCoupon = async (id) => { 
     if(confirm("Hapus kupon ini?")) { 
         try { 
@@ -3330,7 +3355,6 @@ window.deleteCoupon = async (id) => {
         } 
     } 
 };
-
     // ==========================================
     // MARKETPLACE LOGIC
     // ==========================================
