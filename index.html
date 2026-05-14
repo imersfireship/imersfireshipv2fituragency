@@ -1360,47 +1360,59 @@
     </div>
 
     <!-- User Form Modal -->
-    <div id="userModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-md z-50 hidden flex justify-center items-center p-4">
-        <div class="glass rounded-3xl shadow-2xl w-full max-w-md overflow-hidden flex flex-col border border-white/20">
-            <div class="p-6 border-b border-white/20 dark:border-slate-700/50 flex justify-between items-center bg-white/40 dark:bg-slate-800/40">
-                <h3 class="text-xl font-black text-slate-800 dark:text-white" id="userModalTitle">Tambah User Baru</h3>
-                <button onclick="closeUserModal()" class="text-slate-500 hover:text-red-500 bg-white/50 dark:bg-slate-700/50 p-2 rounded-full transition-colors"><i class="ph ph-x text-xl"></i></button>
-            </div>
-            <div class="p-6 overflow-y-auto">
-                <form id="userForm" class="space-y-4">
-                    <input type="hidden" id="userId">
-                    <div>
-                        <label class="block text-sm font-bold text-slate-700 dark:text-slate-300 mb-1">Nama Lengkap</label>
-                        <input type="text" id="userName" class="w-full px-4 py-3 bg-white/50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-brand outline-none transition-all dark:text-white font-medium" required>
+<div id="userModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-md z-50 hidden flex justify-center items-center p-4">
+    <div class="glass rounded-3xl shadow-2xl w-full max-w-md overflow-hidden flex flex-col border border-white/20">
+        <div class="p-6 border-b border-white/20 dark:border-slate-700/50 flex justify-between items-center bg-white/40 dark:bg-slate-800/40">
+            <h3 class="text-xl font-black text-slate-800 dark:text-white" id="userModalTitle">Tambah User Baru</h3>
+            <button onclick="closeUserModal()" class="text-slate-500 hover:text-red-500 bg-white/50 dark:bg-slate-700/50 p-2 rounded-full transition-colors"><i class="ph ph-x text-xl"></i></button>
+        </div>
+        <div class="p-6 overflow-y-auto">
+            <form id="userForm" class="space-y-4">
+                <input type="hidden" id="userId">
+                <div>
+                    <label class="block text-sm font-bold text-slate-700 dark:text-slate-300 mb-1">Nama Lengkap</label>
+                    <input type="text" id="userName" class="w-full px-4 py-3 bg-white/50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-brand outline-none transition-all dark:text-white font-medium" required>
+                </div>
+                <div>
+                    <label class="block text-sm font-bold text-slate-700 dark:text-slate-300 mb-1">Email</label>
+                    <input type="email" id="userEmail" class="w-full px-4 py-3 bg-white/50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-brand outline-none transition-all dark:text-white font-medium" required>
+                </div>
+                <div>
+                    <label class="block text-sm font-bold text-slate-700 dark:text-slate-300 mb-1">No WhatsApp</label>
+                    <input type="text" id="userWa" class="w-full px-4 py-3 bg-white/50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-brand outline-none transition-all dark:text-white font-medium">
+                </div>
+                <div>
+                    <label class="block text-sm font-bold text-slate-700 dark:text-slate-300 mb-1">Role</label>
+                    <select id="userRole" class="w-full px-4 py-3 bg-white/50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-brand outline-none transition-all dark:text-white font-medium">
+                        <option value="user">User (Member)</option>
+                        <option value="agency">Agency</option>
+                        <option value="admin">Admin</option>
+                    </select>
+                </div>
+
+                <!-- SUNTIKAN 1: Kontainer Checklist Produk (Pemisah Akses) -->
+                <div class="pt-2">
+                    <label class="block text-xs font-black text-brand uppercase tracking-widest mb-2 flex items-center gap-2">
+                        <i class="ph ph-shield-check"></i> Produk yang Dimiliki (Akses)
+                    </label>
+                    <div id="userProductChecklist" class="grid grid-cols-1 gap-2 p-4 bg-slate-50 dark:bg-slate-900/50 rounded-2xl border border-slate-200 dark:border-slate-700 max-h-48 overflow-y-auto no-scrollbar shadow-inner">
+                        <!-- List Produk bakal muncul di sini via JS -->
+                        <p class="text-[10px] text-slate-400 italic">Memuat daftar produk...</p>
                     </div>
-                    <div>
-                        <label class="block text-sm font-bold text-slate-700 dark:text-slate-300 mb-1">Email</label>
-                        <input type="email" id="userEmail" class="w-full px-4 py-3 bg-white/50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-brand outline-none transition-all dark:text-white font-medium" required>
-                    </div>
-                    <div>
-                        <label class="block text-sm font-bold text-slate-700 dark:text-slate-300 mb-1">No WhatsApp</label>
-                        <input type="text" id="userWa" class="w-full px-4 py-3 bg-white/50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-brand outline-none transition-all dark:text-white font-medium">
-                    </div>
-                    <div>
-                        <label class="block text-sm font-bold text-slate-700 dark:text-slate-300 mb-1">Role</label>
-                        <select id="userRole" class="w-full px-4 py-3 bg-white/50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-brand outline-none transition-all dark:text-white font-medium">
-                            <option value="user">User (Member)</option>
-                            <option value="agency">Agency</option>
-                            <option value="admin">Admin</option>
-                        </select>
-                    </div>
-                    <div id="userPasswordContainer">
-                        <label class="block text-sm font-bold text-slate-700 dark:text-slate-300 mb-1">Password</label>
-                        <input type="password" id="userPassword" placeholder="Kosongkan jika tidak ingin mengubah" class="w-full px-4 py-3 bg-white/50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-brand outline-none transition-all dark:text-white font-medium">
-                    </div>
-                </form>
-            </div>
-            <div class="p-6 border-t border-white/20 dark:border-slate-700/50 bg-white/40 dark:bg-slate-800/40 flex justify-end gap-3">
-                <button onclick="closeUserModal()" class="px-6 py-3 text-slate-600 dark:text-slate-300 font-bold hover:bg-white/50 dark:hover:bg-slate-700/50 rounded-xl transition-colors">Batal</button>
-                <button onclick="saveUser()" class="bg-gradient-to-r from-brand to-purple-600 hover:from-brandHover hover:to-purple-700 text-white px-8 py-3 rounded-xl font-bold transition-all shadow-lg shadow-brand/30">Simpan User</button>
-            </div>
+                </div>
+
+                <div id="userPasswordContainer">
+                    <label class="block text-sm font-bold text-slate-700 dark:text-slate-300 mb-1">Password</label>
+                    <input type="password" id="userPassword" placeholder="Kosongkan jika tidak ingin mengubah" class="w-full px-4 py-3 bg-white/50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-brand outline-none transition-all dark:text-white font-medium">
+                </div>
+            </form>
+        </div>
+        <div class="p-6 border-t border-white/20 dark:border-slate-700/50 bg-white/40 dark:bg-slate-800/40 flex justify-end gap-3">
+            <button onclick="closeUserModal()" class="px-6 py-3 text-slate-600 dark:text-slate-300 font-bold hover:bg-white/50 dark:hover:bg-slate-700/50 rounded-xl transition-colors">Batal</button>
+            <button onclick="saveUser()" class="bg-gradient-to-r from-brand to-purple-600 hover:from-brandHover hover:to-purple-700 text-white px-8 py-3 rounded-xl font-bold transition-all shadow-lg shadow-brand/30">Simpan User</button>
         </div>
     </div>
+</div>
 
     <!-- Custom Salespage Viewer Modal -->
     <div id="salesPageModal" class="fixed inset-0 bg-slate-900/90 backdrop-blur-xl z-[70] hidden flex justify-center items-start p-0 sm:p-4 overflow-y-auto">
@@ -2675,56 +2687,14 @@
             
             const pwdInput = document.getElementById('userPassword');
             if(pwdInput) pwdInput.required = true;
-            
+
+            // RENDER LIST KOSONG (Tapi tetap dicek: Agency cuma liat produk punya dia)
+            window.renderProductChecklist('');
+
             const modal = document.getElementById('userModal');
             if(modal) modal.classList.remove('hidden');
         } catch (e) {
             console.error("Gagal membuka form User: ", e);
-        }
-    };
-
-    window.closeUserModal = () => {
-        const modal = document.getElementById('userModal');
-        if(modal) modal.classList.add('hidden');
-    };
-
-    window.saveUser = async () => {
-        try {
-            const idEl = document.getElementById('userId');
-            const id = idEl ? idEl.value : '';
-            
-            const name = document.getElementById('userName')?.value || '';
-            const email = document.getElementById('userEmail')?.value || '';
-            const rawWa = document.getElementById('userWa')?.value || '';
-            const wa = window.formatPhoneNumber(rawWa);
-            const role = document.getElementById('userRole')?.value || 'user';
-            const rawPass = document.getElementById('userPassword')?.value || '';
-
-            if(!name || !email) {
-                window.showToast("Nama dan Email wajib diisi", "error");
-                return;
-            }
-
-            let payload = { id, name, email, wa, role };
-
-            if (id) { 
-                if (rawPass) payload.password = await window.hashPassword(rawPass);
-            } else { 
-                if (!rawPass) {
-                    window.showToast("Password wajib diisi untuk user baru", "error");
-                    return;
-                }
-                payload.password = await window.hashPassword(rawPass);
-                payload.license = role.toUpperCase() + '-' + Math.floor(Math.random() * 9999);
-                payload.affiliateCode = name.replace(/\s+/g, '').toUpperCase().substring(0, 5) + Math.floor(Math.random()*1000);
-            }
-
-            await apiCall('saveUser', payload);
-            window.showToast("Data user berhasil disimpan!");
-            await window.loadAllData();
-            window.closeUserModal();
-        } catch (e) {
-            window.showToast(e.message, "error");
         }
     };
 
@@ -2739,6 +2709,9 @@
             if(document.getElementById('userEmail')) document.getElementById('userEmail').value = u.email;
             if(document.getElementById('userWa')) document.getElementById('userWa').value = u.wa || '';
             if(document.getElementById('userRole')) document.getElementById('userRole').value = u.role || 'user';
+
+            // RENDER LIST & CENTANG OTOMATIS (Berdasarkan isi kolom license user tersebut)
+            window.renderProductChecklist(u.license || '');
             
             const pwdInput = document.getElementById('userPassword');
             if(pwdInput) {
@@ -2753,15 +2726,89 @@
         }
     };
 
-    window.deleteUser = async (id) => {
-        if(confirm("Hapus user ini?")) {
-            try {
-                await apiCall('deleteUser', {id});
-                window.showToast("User dihapus.");
-                await window.loadAllData();
-            } catch (e) {
-                window.showToast(e.message, "error");
+    // FUNGSI PEMBANTU: Ngerender list checkbox dengan FILTER HAK AKSES AGENCY
+    window.renderProductChecklist = (userLicense) => {
+        const container = document.getElementById('userProductChecklist');
+        if(!container) return;
+        
+        container.innerHTML = '';
+        const allProducts = window.appState.products || [];
+        const ownedByTarget = userLicense.split(',').map(s => s.trim());
+        
+        // --- LOGIKA PAGAR GAIB AGENCY ---
+        const currentUser = window.appState.user;
+        let availableProducts = [];
+
+        if (currentUser.role === 'admin') {
+            availableProducts = allProducts; // Admin bebas
+        } else if (currentUser.role === 'agency') {
+            // Agency cuma boleh ngasih produk yang DIA PUNYA di kolom license-nya sendiri
+            const agencyLicense = (currentUser.license || '').split(',').map(s => s.trim());
+            availableProducts = allProducts.filter(p => agencyLicense.includes(String(p.id)));
+        }
+
+        if(availableProducts.length === 0) {
+            container.innerHTML = '<p class="text-[10px] text-red-400 italic p-2">Tidak ada akses produk tersedia.</p>';
+            return;
+        }
+
+        availableProducts.forEach(p => {
+            const isChecked = ownedByTarget.includes(String(p.id)) ? 'checked' : '';
+            container.innerHTML += `
+                <label class="flex items-center gap-3 p-2 hover:bg-white dark:hover:bg-slate-800 rounded-xl cursor-pointer border border-transparent hover:border-slate-100 dark:hover:border-slate-700 transition-all">
+                    <input type="checkbox" class="product-access-checkbox w-4 h-4 accent-brand" value="${p.id}" ${isChecked}>
+                    <div class="flex flex-col">
+                        <span class="text-xs font-bold text-slate-700 dark:text-slate-200">${p.title}</span>
+                        <span class="text-[9px] text-slate-400 uppercase font-black">ID: ${p.id}</span>
+                    </div>
+                </label>
+            `;
+        });
+    };
+
+    window.saveUser = async () => {
+        try {
+            const idEl = document.getElementById('userId');
+            const id = idEl ? idEl.value : '';
+            
+            const name = document.getElementById('userName')?.value || '';
+            const email = document.getElementById('userEmail')?.value || '';
+            const rawWa = document.getElementById('userWa')?.value || '';
+            const wa = window.formatPhoneNumber(rawWa);
+            const role = document.getElementById('userRole')?.value || 'user';
+            const rawPass = document.getElementById('userPassword')?.value || '';
+
+            // LOGIKA AMBIL DATA CHECKLIST
+            const selectedProducts = [];
+            document.querySelectorAll('.product-access-checkbox:checked').forEach(cb => {
+                selectedProducts.push(cb.value);
+            });
+            const licenseData = selectedProducts.join(', ');
+
+            if(!name || !email) {
+                window.showToast("Nama dan Email wajib diisi", "error");
+                return;
             }
+
+            let payload = { 
+                id, name, email, wa, role, 
+                license: licenseData // Simpan daftar ID produk ke kolom license bray
+            };
+
+            if (id) { 
+                if (rawPass) payload.password = await window.hashPassword(rawPass);
+            } else { 
+                if (!rawPass) { window.showToast("Password wajib diisi!", "error"); return; }
+                payload.password = await window.hashPassword(rawPass);
+                payload.affiliateCode = name.replace(/\s+/g, '').toUpperCase().substring(0, 5) + Math.floor(Math.random()*1000);
+            }
+
+            await apiCall('saveUser', payload);
+            window.showToast("Data user & Akses disimpan!");
+            await window.loadAllData();
+            window.closeUserModal();
+        } catch (e) {
+            window.showToast(e.message, "error");
         }
     };
 
