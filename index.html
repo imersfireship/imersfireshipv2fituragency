@@ -2726,40 +2726,58 @@
         }
     };
 
-    // FUNGSI PEMBANTU: Ngerender list checkbox dengan FILTER HAK AKSES AGENCY
+    // FUNGSI PEMBANTU: Ngerender list checkbox dengan FILTER HAK AKSES KETAT
     window.renderProductChecklist = (userLicense) => {
         const container = document.getElementById('userProductChecklist');
         if(!container) return;
         
-        container.innerHTML = '';
-        const allProducts = window.appState.products || [];
-        const ownedByTarget = userLicense.split(',').map(s => s.trim());
+        container.innerHTML = '<p class="text-[10px] text-slate-400 italic">Mengecek daftar produk...</p>';
         
-        // --- LOGIKA PAGAR GAIB AGENCY ---
+        const allProducts = window.appState.products || [];
+        // Pastikan userLicense diproses sebagai string biar nggak error pas split
+        const ownedByTarget = String(userLicense || '').split(',').map(s => s.trim());
+        
+        // --- AMBIL DATA LOGIN ---
         const currentUser = window.appState.user;
-        let availableProducts = [];
-
-        if (currentUser.role === 'admin') {
-            availableProducts = allProducts; // Admin bebas
-        } else if (currentUser.role === 'agency') {
-            // Agency cuma boleh ngasih produk yang DIA PUNYA di kolom license-nya sendiri
-            const agencyLicense = (currentUser.license || '').split(',').map(s => s.trim());
-            availableProducts = allProducts.filter(p => agencyLicense.includes(String(p.id)));
-        }
-
-        if(availableProducts.length === 0) {
-            container.innerHTML = '<p class="text-[10px] text-red-400 italic p-2">Tidak ada akses produk tersedia.</p>';
+        if(!currentUser) {
+            container.innerHTML = '<p class="text-[10px] text-red-400 italic">Sesi login tidak ditemukan.</p>';
             return;
         }
 
+        // Normalisasi Role (Admin/admin/ADMIN jadi kecil semua biar aman)
+        const myRole = String(currentUser.role).toLowerCase();
+        let availableProducts = [];
+
+        if (myRole === 'admin') {
+            // ADMIN LIAT SEMUA - Force tampilkan semua produk dari database
+            availableProducts = allProducts;
+        } else if (myRole === 'agency') {
+            // AGENCY DISARING - Cuma produk yang ID-nya ada di license si Agency
+            const agencyLicense = String(currentUser.license || '').split(',').map(s => s.trim());
+            availableProducts = allProducts.filter(p => agencyLicense.includes(String(p.id)));
+        }
+
+        // --- RENDER KE LAYAR ---
+        if(availableProducts.length === 0) {
+            container.innerHTML = `
+                <div class="p-2 text-center">
+                    <p class="text-[10px] text-red-500 font-bold italic leading-tight">
+                        TIDAK ADA AKSES PRODUK<br>
+                        <span class="text-slate-400 font-normal">Hubungi Admin untuk aktivasi lisensi.</span>
+                    </p>
+                </div>`;
+            return;
+        }
+
+        container.innerHTML = ''; // Bersihkan loading
         availableProducts.forEach(p => {
             const isChecked = ownedByTarget.includes(String(p.id)) ? 'checked' : '';
             container.innerHTML += `
-                <label class="flex items-center gap-3 p-2 hover:bg-white dark:hover:bg-slate-800 rounded-xl cursor-pointer border border-transparent hover:border-slate-100 dark:hover:border-slate-700 transition-all">
-                    <input type="checkbox" class="product-access-checkbox w-4 h-4 accent-brand" value="${p.id}" ${isChecked}>
+                <label class="flex items-center gap-3 p-3 bg-white dark:bg-slate-800/40 rounded-xl cursor-pointer border border-slate-100 dark:border-slate-700/50 hover:border-brand/30 transition-all shadow-sm">
+                    <input type="checkbox" class="product-access-checkbox w-4 h-4 accent-brand rounded" value="${p.id}" ${isChecked}>
                     <div class="flex flex-col">
                         <span class="text-xs font-bold text-slate-700 dark:text-slate-200">${p.title}</span>
-                        <span class="text-[9px] text-slate-400 uppercase font-black">ID: ${p.id}</span>
+                        <span class="text-[9px] text-slate-400 font-black uppercase">Prod ID: ${p.id}</span>
                     </div>
                 </label>
             `;
@@ -2778,7 +2796,7 @@
             const role = document.getElementById('userRole')?.value || 'user';
             const rawPass = document.getElementById('userPassword')?.value || '';
 
-            // LOGIKA AMBIL DATA CHECKLIST
+            // AMBIL DATA CHECKLIST
             const selectedProducts = [];
             document.querySelectorAll('.product-access-checkbox:checked').forEach(cb => {
                 selectedProducts.push(cb.value);
@@ -2792,7 +2810,7 @@
 
             let payload = { 
                 id, name, email, wa, role, 
-                license: licenseData // Simpan daftar ID produk ke kolom license bray
+                license: licenseData 
             };
 
             if (id) { 
@@ -2804,7 +2822,7 @@
             }
 
             await apiCall('saveUser', payload);
-            window.showToast("Data user & Akses disimpan!");
+            window.showToast("Data user & Akses berhasil disimpan!");
             await window.loadAllData();
             window.closeUserModal();
         } catch (e) {
